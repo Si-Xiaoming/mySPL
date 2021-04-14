@@ -39,5 +39,5 @@ include_directories(${EIGEN3_INCLUDE_DIR} ${CMAKE_CURRENT_LIST_DIR}/depends)
 
 
 
-add_subdirectory(depends)
+
 add_subdirectory(src)

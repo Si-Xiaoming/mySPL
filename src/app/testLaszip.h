@@ -64,4 +64,5 @@ public:
 	void pc_save(const std::string &path, const PointCloud<double> &points, const Vector3d &offset = Vector3d::Zero(),
 		const std::string &wkt = "");
 	void PcSave(const std::string & outpath, const PointCloud<double>& outpoint);
+	void MyPcSave(const std::string& outpath, const PointCloud<double>& outpoint);
 };

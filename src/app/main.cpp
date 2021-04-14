@@ -4,7 +4,6 @@
 #include "testRanger.h"
 #include"testLaszip.h"
 #include"testNanoflann.h"
-#include "LasZipOperator.h"
 void ReadData(std::istream &fin, Eigen::MatrixXf &m_matrix)
 {
 	int numRow = m_matrix.rows();
@@ -86,34 +85,20 @@ int RandomForest(PointCloud<double> &pc, PointCloud<double> &testPc, LasOperate 
 	ReadData(fin2, testFeatureMatrix);
 
 	VectorXf label_out = sc.predict(testFeatureMatrix);
+	int te = 0;
 	for (size_t i = 0; i < testPc.kdtree_get_point_count(); i++) {
 		if (label_out[i] == 1)
 		{
 			testPc.pts[i].classifcation = 7;
+			te++;
 		}
 	}
+	cout << te << endl;
 	cout << "测试集分类完毕" << endl;
-	string outFileName = "D:\\myDataBase\\pointCloudDatas\\testlasDir\\test\\outTest.laz";
+	string outFileName = "D:\\SPL100_noise\\data\\test\\outTest03.laz";
 
-	testLo.PcSave(outFileName, testPc);
+	testLo.MyPcSave(outFileName, testPc);
 	cout << "数据写入文件完毕" << endl;
-}
-
-
-void testRanger() {
-	SuperpixelClassifier sc;
-	MatrixXf mxf = MatrixXf::Zero(5, 3);
-	mxf << 1, 2, 3e-13
-		, 5, 8, 9e-13
-		, 2, 5, 8e-13
-		, 3, 6, 9e-13
-		, 12, 82, 33e-13;
-	VectorXf vxd = VectorXf::Zero(5);
-	vxd[4] = 7;
-	sc.train(mxf, vxd);
-	MatrixXf test3f = MatrixXf::Zero(5, 3);
-	test3f << 1, 3, 5e-13, 26, 164, 66e-13, 2, 4, 6e-13, 8, 9, 10e-13, 3, 5, 7e-13;
-	cout << sc.predict(test3f);
 }
 
 int main(int argc, char** argv) {
@@ -121,9 +106,9 @@ int main(int argc, char** argv) {
 	
 
 
-	string filename = "D:\\myDataBase\\pointCloudDatas\\testlasDir\\test\\train_Cloud.laz";
+	string filename = "D:\\SPL100_noise\\data\\test\\train_Cloud.laz";
 
-	string testFilename = "D:\\myDataBase\\pointCloudDatas\\testlasDir\\test\\test_Cloud.laz";
+	string testFilename = "D:\\SPL100_noise\\data\\test\\test_Cloud.laz";
 
 	LasOperate lo(filename);
 	PointCloud<double> pc;
