@@ -25,20 +25,43 @@ void operate(PointCloud<double> &pc, PointCloud<double> &testPc) {
 
 	MatrixXd mxf;
 	FlannFeatureValue ffv(pc);
-	int radius = 2;
-	MatrixXf featureMatrix = ffv.kdTreeBuild(radius);//当半径为radius时，输出特征矩阵
-	cout << "训练集特征矩阵计算完毕" << endl;
 
+	MatrixXf testMxf;
+	FlannFeatureValue testFfv(testPc);
+
+	int radius = 1;
+	MatrixXf featureMatrix01 = ffv.kdTreeBuild(radius);//当半径为radius时，输出特征矩阵
+	cout << "训练集特征矩阵01计算完毕" << endl;
+
+	radius = 2;
+	MatrixXf featureMatrix02 = ffv.kdTreeBuild(radius);//当半径为radius时，输出特征矩阵
+	cout << "训练集特征矩阵02计算完毕" << endl;
+
+	radius = 2;
+	MatrixXf featureMatrix03 = ffv.kdTreeBuild(radius);//当半径为radius时，输出特征矩阵
+	cout << "训练集特征矩阵03计算完毕" << endl;
+
+	MatrixXf featureMatrix;
+	featureMatrix.resize(pc.kdtree_get_point_count(),6);
+	featureMatrix << featureMatrix01, featureMatrix02;
+	//featureMatrix = featureMatrix01;
 	/*写文件**/
 	std::ofstream fout("trainFeatureMatrix.bin", std::ios::binary);
 	fout << featureMatrix << std::endl;
 	fout.flush();
 	cout << "训练集特征矩阵写入完毕" << endl;
+	//cout << featureMatrix;
 
+	radius = 1;
+	MatrixXf testFeatureMatrix01 = testFfv.kdTreeBuild(radius);
+	radius = 2;
+	MatrixXf testFeatureMatrix02 = testFfv.kdTreeBuild(radius);
+	radius = 2;
+	MatrixXf testFeatureMatrix03 = testFfv.kdTreeBuild(radius);
 
-	MatrixXf testMxf;
-	FlannFeatureValue testFfv(testPc);
-	MatrixXf testFeatureMatrix = testFfv.kdTreeBuild(radius);
+	MatrixXf testFeatureMatrix;
+	testFeatureMatrix.resize(testPc.kdtree_get_point_count(), 6);
+	testFeatureMatrix << testFeatureMatrix01,testFeatureMatrix02;
 	cout << "测试集特征矩阵计算完毕" << endl;
 
 	/*写文件**/
@@ -67,7 +90,7 @@ int RandomForest(PointCloud<double> &pc, PointCloud<double> &testPc, LasOperate 
 	{
 		return 0;
 	}
-	MatrixXf featureMatrix = MatrixXf::Zero(pc.kdtree_get_point_count(), 3);
+	MatrixXf featureMatrix = MatrixXf::Zero(pc.kdtree_get_point_count(), 6);
 	ReadData(fin, featureMatrix);
 
 
@@ -81,7 +104,7 @@ int RandomForest(PointCloud<double> &pc, PointCloud<double> &testPc, LasOperate 
 	{
 		return 0;
 	}
-	MatrixXf testFeatureMatrix = MatrixXf::Zero(testPc.kdtree_get_point_count(), 3);
+	MatrixXf testFeatureMatrix = MatrixXf::Zero(testPc.kdtree_get_point_count(),6);
 	ReadData(fin2, testFeatureMatrix);
 
 	VectorXf label_out = sc.predict(testFeatureMatrix);
@@ -89,23 +112,18 @@ int RandomForest(PointCloud<double> &pc, PointCloud<double> &testPc, LasOperate 
 	for (size_t i = 0; i < testPc.kdtree_get_point_count(); i++) {
 		if (label_out[i] == 1)
 		{
-			testPc.pts[i].classifcation = 7;
+			testPc.pts[i].classifcation = 20;
 			te++;
 		}
 	}
 	cout << te << endl;
 	cout << "测试集分类完毕" << endl;
-	string outFileName = "D:\\SPL100_noise\\data\\test\\outTest03.laz";
+	string outFileName = "D:\\SPL100_noise\\data\\test\\outTest03_More.laz";
 
 	testLo.MyPcSave(outFileName, testPc);
 	cout << "数据写入文件完毕" << endl;
 }
-
-int main(int argc, char** argv) {
-
-	
-
-
+void Operator() {
 	string filename = "D:\\SPL100_noise\\data\\test\\train_Cloud.laz";
 
 	string testFilename = "D:\\SPL100_noise\\data\\test\\test_Cloud.laz";
@@ -120,17 +138,17 @@ int main(int argc, char** argv) {
 	PointCloud<double> testPc;
 	testPc = testLo.pointRead();
 	cout << "测试集数据读取完毕" << endl;
-	//operate(pc,testPc);
+
+
+	operate(pc,testPc);
 	RandomForest(pc, testPc, testLo);
+}
+int main(int argc, char** argv) {
 
+	
 
-	//LasOperate lzo(filename);
-	//cout << lzo.path << endl;
-	//PointCloud<double> pc;
-	//pc=lzo.pointRead();
-	//cout <<pc.kdtree_get_point_count();
-	//lzo.PcSave("D:\\myDataBase\\pointCloudDatas\\testlasDir\\test\\Cloudsss.laz", pc);
-
+	Operator();
+	
 
 
 }
